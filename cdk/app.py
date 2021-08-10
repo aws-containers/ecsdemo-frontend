@@ -156,13 +156,13 @@ class FrontendServiceMesh(core.Stack):
         )
         
         self.logGroup = aws_logs.LogGroup(self,"ecsworkshopFrontendLogGroup",
-            log_group_name="ecsworkshop-frontend2",
+            #log_group_name="ecsworkshop-frontend",
             retention=aws_logs.RetentionDays.ONE_WEEK
         )
         
         self.app_container = self.fargate_task_def.add_container(
             "FrontendServiceContainerDef",
-            image=aws_ecs.ContainerImage.from_registry("adam9098/ecsdemo-frontend"),
+            image=aws_ecs.ContainerImage.from_registry("{}.dkr.ecr.{}.amazonaws.com/ecsdemo-frontend".format(getenv('AWS_ACCOUNT_ID'), getenv('AWS_DEFAULT_REGION'))),
             logging=aws_ecs.LogDriver.aws_logs(
                 stream_prefix='/frontend-container',
                 log_group=self.logGroup
@@ -225,7 +225,7 @@ class FrontendServiceMesh(core.Stack):
                 "REGION": getenv('AWS_DEFAULT_REGION'),
                 "ENVOY_LOG_LEVEL": "debug",
                 "ENABLE_ENVOY_STATS_TAGS": "1",
-                "ENABLE_ENVOY_XRAY_TRACING": "1",
+                # "ENABLE_ENVOY_XRAY_TRACING": "1",
                 "APPMESH_RESOURCE_ARN": self.mesh_frontend_vn.virtual_node_arn
             },
             essential=True,
@@ -255,26 +255,27 @@ class FrontendServiceMesh(core.Stack):
            )
         )
         
-        self.xray_container = self.fargate_task_def.add_container(
-            "FrontendServiceXrayContdef",
-            image=aws_ecs.ContainerImage.from_registry("amazon/aws-xray-daemon"),
-            logging=aws_ecs.LogDriver.aws_logs(
-                stream_prefix='/xray-container',
-                log_group=self.logGroup
-            ),
-            essential=True,
-            container_name="xray",
-            memory_reservation_mib=170,
-            user="1337"
-        )
+        #ammmesh-xray-uncomment
+        # self.xray_container = self.fargate_task_def.add_container(
+        #     "FrontendServiceXrayContdef",
+        #     image=aws_ecs.ContainerImage.from_registry("amazon/aws-xray-daemon"),
+        #     logging=aws_ecs.LogDriver.aws_logs(
+        #         stream_prefix='/xray-container',
+        #         log_group=self.logGroup
+        #     ),
+        #     essential=True,
+        #     container_name="xray",
+        #     memory_reservation_mib=170,
+        #     user="1337"
+        # )
         
-        self.envoy_container.add_container_dependencies(aws_ecs.ContainerDependency(
-               container=self.xray_container,
-               condition=aws_ecs.ContainerDependencyCondition.START
-           )
-        )
+        # self.envoy_container.add_container_dependencies(aws_ecs.ContainerDependency(
+        #       container=self.xray_container,
+        #       condition=aws_ecs.ContainerDependencyCondition.START
+        #   )
+        # )
+        #ammmesh-xray-uncomment
         
-
         self.fargate_task_def.add_to_task_role_policy(
             aws_iam.PolicyStatement(
                 actions=['ec2:DescribeSubnets'],
@@ -291,9 +292,10 @@ class FrontendServiceMesh(core.Stack):
         self.fargate_task_def.execution_role.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("CloudWatchLogsFullAccess"))
         
         self.fargate_task_def.task_role.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("CloudWatchFullAccess"))
-        self.fargate_task_def.task_role.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("AWSXRayDaemonWriteAccess"))
+        # self.fargate_task_def.task_role.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("AWSXRayDaemonWriteAccess"))
         self.fargate_task_def.task_role.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("AWSAppMeshEnvoyAccess"))
         
+        # Creating a App Mesh virtual router
         meshVR=aws_appmesh.VirtualRouter(
             self,
             "MeshVirtualRouter",
