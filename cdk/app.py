@@ -168,7 +168,7 @@ class FrontendServiceMesh(core.Stack):
                 log_group=self.logGroup
             ),
             essential=True,
-            memory_reservation_mib=170,
+            memory_reservation_mib=128,
             environment={
                 "CRYSTAL_URL": "http://ecsdemo-crystal.service.local:3000/crystal",
                 "NODEJS_URL": "http://ecsdemo-nodejs.service.local:3000",
@@ -211,7 +211,8 @@ class FrontendServiceMesh(core.Stack):
             backends=[
                 aws_appmesh.Backend.virtual_service(self.mesh_crystal_vs),
                 aws_appmesh.Backend.virtual_service(self.mesh_nodejs_vs)
-                ]
+                ],
+            access_log=aws_appmesh.AccessLog.from_file_path("/dev/stdout")
             
         )
         
@@ -220,10 +221,10 @@ class FrontendServiceMesh(core.Stack):
             "FrontendServiceProxyContdef",
             image=aws_ecs.ContainerImage.from_registry("public.ecr.aws/appmesh/aws-appmesh-envoy:v1.18.3.0-prod"),
             container_name="envoy",
-            memory_reservation_mib=170,
+            memory_reservation_mib=128,
             environment={
                 "REGION": getenv('AWS_DEFAULT_REGION'),
-                "ENVOY_LOG_LEVEL": "debug",
+                "ENVOY_LOG_LEVEL": "critical",
                 "ENABLE_ENVOY_STATS_TAGS": "1",
                 # "ENABLE_ENVOY_XRAY_TRACING": "1",
                 "APPMESH_RESOURCE_ARN": self.mesh_frontend_vn.virtual_node_arn
@@ -265,7 +266,7 @@ class FrontendServiceMesh(core.Stack):
         #     ),
         #     essential=True,
         #     container_name="xray",
-        #     memory_reservation_mib=170,
+        #     memory_reservation_mib=256,
         #     user="1337"
         # )
         
