@@ -57,7 +57,7 @@ class FrontendService(core.Stack):
         self.base_platform = BasePlatform(self, self.stack_name)
 
         self.fargate_task_image = aws_ecs_patterns.ApplicationLoadBalancedTaskImageOptions(
-            image=aws_ecs.ContainerImage.from_registry("adam9098/ecsdemo-frontend"),
+            image=aws_ecs.ContainerImage.from_registry("public.ecr.aws/aws-containers/ecsdemo-frontend"),
             container_port=3000,
             environment={
                 "CRYSTAL_URL": "http://ecsdemo-crystal.service.local:3000/crystal",
@@ -162,7 +162,7 @@ class FrontendServiceMesh(core.Stack):
         
         self.app_container = self.fargate_task_def.add_container(
             "FrontendServiceContainerDef",
-            image=aws_ecs.ContainerImage.from_registry("{}.dkr.ecr.{}.amazonaws.com/ecsdemo-frontend".format(getenv('AWS_ACCOUNT_ID'), getenv('AWS_DEFAULT_REGION'))),
+            image=aws_ecs.ContainerImage.from_registry("public.ecr.aws/aws-containers/ecsdemo-frontend"),
             logging=aws_ecs.LogDriver.aws_logs(
                 stream_prefix='/frontend-container',
                 log_group=self.logGroup
