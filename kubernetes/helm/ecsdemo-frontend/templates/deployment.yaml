@@ -67,6 +67,6 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.topologySpreadConstraints }}
-      tolerations:
+      topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}
       {{- end }}
