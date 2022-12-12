@@ -61,6 +61,10 @@ spec:
             periodSeconds: 10
             successThreshold: 1                         
             timeoutSeconds: 10
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 180"] 
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
