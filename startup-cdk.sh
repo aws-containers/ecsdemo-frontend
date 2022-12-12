@@ -67,18 +67,20 @@ if [[ "${orchestrator}" == 'kubernetes' ]]; then
     fi
 fi 
 
+TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"
+
 if [[ ${orchestrator} == 'unknown' ]]; then
-  zone=$(curl -m2 -s http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r '.availabilityZone' | grep -o .$)
+  zone=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -m2 -s http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r '.availabilityZone' | grep -o .$)
 fi 
 
 # Am I on ec2 instances?
 if [[ ${zone} == "unknown" ]]; then
-  zone=$(curl -m2 -s http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r '.availabilityZone' | grep -o .$)
+  zone=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -m2 -s http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r '.availabilityZone' | grep -o .$)
 fi
 
 # Still no luck? Perhaps we're running fargate!
 if [[ -z ${zone} ]]; then
-  zone=$(curl -s ${ECS_CONTAINER_METADATA_URI_V4}/task | jq -r '.AvailabilityZone' | grep -o .$)
+  zone=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s ${ECS_CONTAINER_METADATA_URI_V4}/task | jq -r '.AvailabilityZone' | grep -o .$)
 fi
 
 export CODE_HASH="$(cat code_hash.txt)"
