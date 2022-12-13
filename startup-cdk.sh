@@ -67,7 +67,7 @@ if [[ "${orchestrator}" == 'kubernetes' ]]; then
     fi
 fi 
 
-TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"
+TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
 
 if [[ ${orchestrator} == 'unknown' ]]; then
   zone=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -m2 -s http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r '.availabilityZone' | grep -o .$)
