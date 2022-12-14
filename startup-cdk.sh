@@ -80,7 +80,7 @@ fi
 
 # Still no luck? Perhaps we're running fargate!
 if [[ -z ${zone} ]]; then
-  zone=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s ${ECS_CONTAINER_METADATA_URI_V4}/task | jq -r '.AvailabilityZone' | grep -o .$)
+  zone=$(curl -s ${ECS_CONTAINER_METADATA_URI_V4}/task | jq -r '.AvailabilityZone' | grep -o .$)
 fi
 
 export CODE_HASH="$(cat code_hash.txt)"
