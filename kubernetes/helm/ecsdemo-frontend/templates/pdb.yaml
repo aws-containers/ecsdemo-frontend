@@ -9,5 +9,5 @@ spec:
   maxUnavailable: 1
   selector:
     matchLabels:
-      - app.kubernetes.io/name: {{ include "ecsdemo-frontend.fullname" . }}
+      app.kubernetes.io/name: {{ include "ecsdemo-frontend.fullname" . }}
 {{- end }}      
