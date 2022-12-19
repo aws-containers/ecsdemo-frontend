@@ -1,4 +1,4 @@
-{{- if .Values.autoscaling.enabled }}
+{{- if .Values.pdb.enabled }}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
@@ -9,5 +9,5 @@ spec:
   maxUnavailable: 1
   selector:
     matchLabels:
-    {{- include "ecsdemo-frontend.labels" . | nindent 4 }}
+      app.kubernetes.io/name=ecsdemo-frontend
 {{- end }}      
