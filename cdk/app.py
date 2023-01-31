@@ -74,8 +74,8 @@ class FrontendService(core.Stack):
             memory_limit_mib=512,
             desired_count=1,
             public_load_balancer=True,
-            cloud_map_options=self.base_platform.sd_namespace,
-            task_image_options=self.fargate_task_image
+            task_image_options=self.fargate_task_image,
+            cloud_map_options=aws_ecs.CloudMapOptions(cloud_map_namespace=self.base_platform.sd_namespace,name='ecsdemo-frontend'),
         )
         
         self.fargate_load_balanced_service.task_definition.add_to_task_role_policy(
