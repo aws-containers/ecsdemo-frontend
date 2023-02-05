@@ -4,7 +4,7 @@ import os
 import aws_cdk as cdk
 from constructs import Construct
 from aws_cdk import (
-    App, CfnOutput, Stack, Environment, Fn,
+    App, CfnOutput, Stack, Environment, Fn, Duration,
     aws_ec2 as ec2,
     aws_ecs as ecs,
     aws_ecs_patterns as ecs_patterns,
@@ -188,7 +188,7 @@ class FrontendServiceMesh(Stack):
             task_definition=self.fargate_task_def,
             cluster=self.base_platform.ecs_cluster,
             security_group=self.base_platform.services_sec_grp,
-            desired_count=3,
+            desired_count=1,
             cloud_map_options=ecs.CloudMapOptions(
                 cloud_map_namespace=self.base_platform.sd_namespace,
                 name='ecsdemo-frontend'
@@ -334,8 +334,8 @@ class FrontendServiceMesh(Stack):
         self.autoscale.scale_on_cpu_utilization(
             "CPUAutoscaling",
             target_utilization_percent=50,
-            scale_in_cooldown=cdk.Duration.seconds(30),
-            scale_out_cooldown=cdk.Duration.seconds(30)
+            scale_in_cooldown=Duration.seconds(30),
+            scale_out_cooldown=Duration.seconds(30)
         )
          
         CfnOutput(self, "MeshFrontendVNARN",value=self.mesh_frontend_vn.virtual_node_arn,export_name="MeshFrontendVNARN")
