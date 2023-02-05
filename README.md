@@ -1,5 +1,8 @@
-![Build Status](https://codebuild.us-east-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiMnZsWms5clp6NEwvRnJXYUsyWjBmcnBiUWVRaFVsRlpENmg3MWU0M2oxVFpEdDdtSDRVRXJJZm1NNXdGQWIrWVU5UTFHd1RZUTdnU29SV0JyeVNHU1R3PSIsIml2UGFyYW1ldGVyU3BlYyI6InVpTTNLMlRtUEV6ZzJCZ2oiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
+## Frontend Application module for the ECS workshop
 
-# Amazon Containers Workshop
+This repository is part of the ECS Workshop.
 
-This is part of an Amazon Containers workshop at https://ecsworkshop.com or https://eksworkshop.com
+This repository will deploy an application in a Fargate service to prepare your environment for the [ECS Workshop](https://ecsworkshop.com/).
+
+Instructions on how to use the code in this repository can be found here: [https://ecsworkshop.com/microservices/frontend/](https://ecsworkshop.com/microservices/frontend/)
+
