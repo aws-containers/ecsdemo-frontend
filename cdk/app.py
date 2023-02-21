@@ -187,7 +187,7 @@ class FrontendServiceMesh(Stack):
             service_name='ecsdemo-frontend',
             task_definition=self.fargate_task_def,
             cluster=self.base_platform.ecs_cluster,
-            security_group=self.base_platform.services_sec_grp,
+            security_groups=[self.base_platform.services_sec_grp],
             desired_count=1,
             cloud_map_options=ecs.CloudMapOptions(
                 cloud_map_namespace=self.base_platform.sd_namespace,
@@ -253,7 +253,7 @@ class FrontendServiceMesh(Stack):
           )
         )
         
-        #appmesh-xray-uncomment
+        #ammmesh-xray-uncomment
         # self.xray_container = self.fargate_task_def.add_container(
         #     "FrontendServiceXrayContdef",
         #     image=ecs.ContainerImage.from_registry("amazon/aws-xray-daemon"),
@@ -290,7 +290,7 @@ class FrontendServiceMesh(Stack):
         self.fargate_task_def.execution_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("CloudWatchLogsFullAccess"))
         
         self.fargate_task_def.task_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("CloudWatchFullAccess"))
-        # fargate_task_def.task_role.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("AWSXRayDaemonWriteAccess"))
+        # self.fargate_task_def.task_role.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("AWSXRayDaemonWriteAccess"))
         self.fargate_task_def.task_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("AWSAppMeshEnvoyAccess"))
         
         # Creating a App Mesh virtual router
@@ -312,7 +312,7 @@ class FrontendServiceMesh(Stack):
         
          # Asdding mesh virtual service 
         mesh_frontend_vs = appmesh.VirtualService(self,"mesh-frontend-vs",
-            virtual_service_provider=self.appmesh.VirtualServiceProvider.virtual_router(meshVR),
+            virtual_service_provider=appmesh.VirtualServiceProvider.virtual_router(meshVR),
             virtual_service_name="{}.{}".format(self.fargate_service.cloud_map_service.service_name,self.fargate_service.cloud_map_service.namespace.namespace_name)
         )
         
