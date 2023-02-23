@@ -267,7 +267,7 @@ class FrontendServiceMesh(Stack):
         # )
         
         # self.envoy_container.add_container_dependencies(ecs.ContainerDependency(
-        #       container=xray_container,
+        #       container=self.xray_container,
         #       condition=ecs.ContainerDependencyCondition.START
         #   )
         # )
