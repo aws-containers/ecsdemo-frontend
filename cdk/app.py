@@ -127,14 +127,14 @@ class FrontendServiceMesh(Stack):
             self,
             "mesh-crystal-vs",
             mesh=self.mesh,
-            virtual_service_name=cdk.Fn.import_value("MeshCrystalVSName")
+            virtual_service_name="ecsdemo-crystal.service.local"
         )
         
         self.mesh_nodejs_vs = appmesh.VirtualService.from_virtual_service_attributes(
             self,
             "mesh-nodejs-vs",
             mesh=self.mesh,
-            virtual_service_name=cdk.Fn.import_value("MeshNodeJsVSName")
+            virtual_service_name="ecsdemo-nodejs.service.local"
         )
         
         self.fargate_task_def = ecs.TaskDefinition(
@@ -187,7 +187,7 @@ class FrontendServiceMesh(Stack):
             service_name='ecsdemo-frontend',
             task_definition=self.fargate_task_def,
             cluster=self.base_platform.ecs_cluster,
-            security_group=self.base_platform.services_sec_grp,
+            security_groups=[self.base_platform.services_sec_grp],
             desired_count=1,
             cloud_map_options=ecs.CloudMapOptions(
                 cloud_map_namespace=self.base_platform.sd_namespace,
@@ -198,14 +198,13 @@ class FrontendServiceMesh(Stack):
              
         ##################################################
         ###APP Mesh Configuration####
-        
         self.mesh_frontend_vn = appmesh.VirtualNode(
             self,
             "MeshFrontEndNode",
             mesh=self.mesh,
             virtual_node_name="frontend",
             listeners=[appmesh.VirtualNodeListener.http(port=3000)],
-            service_discovery=self.appmesh.ServiceDiscovery.cloud_map(self.fargate_service.cloud_map_service),
+            service_discovery=appmesh.ServiceDiscovery.cloud_map(self.fargate_service.cloud_map_service),
             backends=[
                 appmesh.Backend.virtual_service(self.mesh_crystal_vs),
                 appmesh.Backend.virtual_service(self.mesh_nodejs_vs)
@@ -268,7 +267,7 @@ class FrontendServiceMesh(Stack):
         # )
         
         # self.envoy_container.add_container_dependencies(ecs.ContainerDependency(
-        #       container=xray_container,
+        #       container=self.xray_container,
         #       condition=ecs.ContainerDependencyCondition.START
         #   )
         # )
@@ -290,7 +289,7 @@ class FrontendServiceMesh(Stack):
         self.fargate_task_def.execution_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("CloudWatchLogsFullAccess"))
         
         self.fargate_task_def.task_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("CloudWatchFullAccess"))
-        # fargate_task_def.task_role.add_managed_policy(aws_iam.ManagedPolicy.from_aws_managed_policy_name("AWSXRayDaemonWriteAccess"))
+        # self.fargate_task_def.task_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("AWSXRayDaemonWriteAccess"))
         self.fargate_task_def.task_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("AWSAppMeshEnvoyAccess"))
         
         # Creating a App Mesh virtual router
@@ -312,7 +311,7 @@ class FrontendServiceMesh(Stack):
         
          # Asdding mesh virtual service 
         mesh_frontend_vs = appmesh.VirtualService(self,"mesh-frontend-vs",
-            virtual_service_provider=self.appmesh.VirtualServiceProvider.virtual_router(meshVR),
+            virtual_service_provider=appmesh.VirtualServiceProvider.virtual_router(meshVR),
             virtual_service_name="{}.{}".format(self.fargate_service.cloud_map_service.service_name,self.fargate_service.cloud_map_service.namespace.namespace_name)
         )
         
