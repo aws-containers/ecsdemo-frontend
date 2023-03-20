@@ -127,14 +127,14 @@ class FrontendServiceMesh(Stack):
             self,
             "mesh-crystal-vs",
             mesh=self.mesh,
-            virtual_service_name=cdk.Fn.import_value("MeshCrystalVSName")
+            virtual_service_name="ecsdemo-crystal.service.local"#cdk.Fn.import_value("MeshCrystalVSName")
         )
         
         self.mesh_nodejs_vs = appmesh.VirtualService.from_virtual_service_attributes(
             self,
             "mesh-nodejs-vs",
             mesh=self.mesh,
-            virtual_service_name=cdk.Fn.import_value("MeshNodeJsVSName")
+            virtual_service_name="ecsdemo-nodejs.service.local"#cdk.Fn.import_value("MeshNodeJsVSName")
         )
         
         self.fargate_task_def = ecs.TaskDefinition(
@@ -205,7 +205,7 @@ class FrontendServiceMesh(Stack):
             mesh=self.mesh,
             virtual_node_name="frontend",
             listeners=[appmesh.VirtualNodeListener.http(port=3000)],
-            service_discovery=self.appmesh.ServiceDiscovery.cloud_map(self.fargate_service.cloud_map_service),
+            service_discovery=appmesh.ServiceDiscovery.cloud_map(self.fargate_service.cloud_map_service),
             backends=[
                 appmesh.Backend.virtual_service(self.mesh_crystal_vs),
                 appmesh.Backend.virtual_service(self.mesh_nodejs_vs)
@@ -312,7 +312,7 @@ class FrontendServiceMesh(Stack):
         
          # Asdding mesh virtual service 
         mesh_frontend_vs = appmesh.VirtualService(self,"mesh-frontend-vs",
-            virtual_service_provider=self.appmesh.VirtualServiceProvider.virtual_router(meshVR),
+            virtual_service_provider=appmesh.VirtualServiceProvider.virtual_router(meshVR),
             virtual_service_name="{}.{}".format(self.fargate_service.cloud_map_service.service_name,self.fargate_service.cloud_map_service.namespace.namespace_name)
         )
         
