@@ -39,17 +39,33 @@ spec:
               protocol: TCP
           env:
             - name: CRYSTAL_URL
-              value: http://ecsdemo-crystal.{{ .Values.ecsdemoCrystal.namespace }}.svc.cluster.local/crystal
+              value: http://ecsdemo-crystal.{{ .Values.ecsdemoCrystal.namespace }}.svc.cluster.local./crystal
             - name: NODEJS_URL
-              value: http://ecsdemo-nodejs.{{ .Values.ecsdemoNodejs.namespace }}.svc.cluster.local/
+              value: http://ecsdemo-nodejs.{{ .Values.ecsdemoNodejs.namespace }}.svc.cluster.local./
           livenessProbe:
+            failureThreshold: 3
             httpGet:
               path: /
               port: http
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+            initialDelaySeconds: 60
           readinessProbe:
+            failureThreshold: 3          
             httpGet:
               path: /
               port: http
+              scheme: HTTP   
+            periodSeconds: 10
+            successThreshold: 1                         
+            timeoutSeconds: 10
+            initialDelaySeconds: 60            
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 180"] 
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -62,5 +78,9 @@ spec:
       {{- end }}
       {{- with .Values.tolerations }}
       tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}
       {{- end }}

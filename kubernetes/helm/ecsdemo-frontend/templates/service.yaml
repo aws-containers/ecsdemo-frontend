@@ -4,6 +4,8 @@ metadata:
   name: {{ include "ecsdemo-frontend.fullname" . }}
   labels:
     {{- include "ecsdemo-frontend.labels" . | nindent 4 }}
+  annotations:
+    service.kubernetes.io/topology-aware-hints: auto    
 spec:
   type: {{ .Values.service.type }}
   ports:
