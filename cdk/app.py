@@ -91,7 +91,7 @@ class FrontendService(Stack):
         )
         
         # Enable Service Autoscaling
-        #self.autoscale = fargate_load_balanced_service.service.auto_scale_task_count(
+        #self.autoscale = self.fargate_load_balanced_service.service.auto_scale_task_count(
         #    min_capacity=1,
         #    max_capacity=10
         #)
